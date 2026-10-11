@@ -1,0 +1,26 @@
+# Build outputs
+/agent-pointer
+/tests/test_daemon
+/virtual-pointer-client-protocol.h
+/virtual-pointer-protocol.c
+/virtual-keyboard-client-protocol.h
+/virtual-keyboard-protocol.c
+*.o
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local state
+*.sock
+*.log
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+*~
+.DS_Store

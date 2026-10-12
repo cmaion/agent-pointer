@@ -1,7 +1,10 @@
 # agent-pointer
 
-Virtual keyboard and pointer control for **Sway/SwayFX**, with a local MCP
-bridge for Codex and other MCP clients.
+`agent-pointer` provides virtual keyboard and pointer control for **Sway/SwayFX**
+through a local Unix socket and MCP bridge. It lets trusted local agents inspect
+windows and screenshots, then operate applications through their visible UI.
+This helps with desktop tasks in apps that have no agent-facing API, and opens
+up UI-based automation and exploration without needing app-specific integrations.
 
 The daemon puts virtual input on a dedicated Wayland seat named `agent`,
 leaving physical devices on `seat0`. A Unix socket accepts input commands;
@@ -76,13 +79,38 @@ re-adding it. Restart the Codex session after configuration changes. `Auth:
 Unsupported` is normal for this local stdio server; `Status: enabled` only means
 it is configured. Invoke `status` to check the daemon connection.
 
+## Connect OpenCode v2
+
+Start the daemon, then register the local MCP server from a terminal inside
+your Sway session:
+
+```sh
+opencode mcp add agent-pointer -- \
+  python3 /usr/local/bin/agent-pointer-mcp
+opencode mcp list
+```
+
+Replace the bridge path with its absolute path: for a user-local install, use
+`python3 "$HOME/.local/bin/agent-pointer-mcp"`; without installing, use the
+absolute path to `agent-pointer-mcp.py`. Add `--global` before `--` to make the
+registration available in all projects.
+
+The bridge needs `SWAYSOCK`, `WAYLAND_DISPLAY`, and `XDG_RUNTIME_DIR` from the
+OpenCode server's environment. Make sure that server is running inside the
+active Sway session. The CLI command registers the server but does not set
+per-server environment variables; if the server does not inherit them, use the
+`environment` option in OpenCode's [MCP server config](https://opencode.ai/v2/docs/mcp-servers/).
+
+Use `/mcps` in OpenCode to check the server, then ask the agent to invoke
+`status` to verify the daemon connection.
+
+## MCP tools
+
 The bridge uses newline-delimited JSON-RPC over stdin/stdout and needs no
-third-party Python packages. The environment must point to the active Sway
+third-party Python packages. Its environment must point to the active Sway
 session: `SWAYSOCK` for IPC, and `WAYLAND_DISPLAY` / `XDG_RUNTIME_DIR` for Wayland
 and the input socket. `AGENT_POINTER_SOCKET` can override the bridge's socket
 path.
-
-### MCP tools
 
 | Tool | Purpose |
 | --- | --- |
